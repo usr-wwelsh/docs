@@ -15,6 +15,7 @@ USERNAME = "usr-wwelsh"
 HERE = Path(__file__).resolve().parent
 EXCLUDES_FILE = HERE / "repo-excludes.json"
 CONFIG_FILE = HERE / "botdocs.config.json"
+HOME_FILE = HERE / "home.md"
 CLONE_DIR = HERE / ".clones"
 SRC_DIR = HERE / "site-src"
 OUTPUT_DIR = HERE / "output"
@@ -130,20 +131,8 @@ def stage_docs(repo: dict, clone_dir: Path, staging_dir: Path) -> bool:
     return True
 
 
-def write_index(repos: list[dict], staged_names: list[str], staging_dir: Path) -> None:
-    lines = [
-        "---",
-        "title: usr-wwelsh docs",
-        "description: Documentation for usr-wwelsh's public repos",
-        "---",
-        "",
-        "# usr-wwelsh docs",
-        "",
-    ]
-    for repo in sorted(repos, key=lambda r: r["name"].lower()):
-        if repo["name"] in staged_names:
-            lines.append(f"- [{repo['name']}](./{repo['name']}/README.md)")
-    (staging_dir / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+def write_index(home: Path, staging_dir: Path) -> None:
+    shutil.copy(home, staging_dir / "README.md")
 
 
 def parse_args() -> argparse.Namespace:
@@ -175,17 +164,14 @@ def main() -> int:
     SRC_DIR.mkdir(parents=True)
     CLONE_DIR.mkdir(parents=True, exist_ok=True)
 
-    staged_names = []
     for repo in repos:
         dest = CLONE_DIR / repo["name"]
         if not args.skip_clone:
             fetch_repo(repo, dest)
         staged = stage_docs(repo, dest, SRC_DIR)
         print(f"{'->' if staged else '  (skip, no docs)'} {repo['name']}")
-        if staged:
-            staged_names.append(repo["name"])
 
-    write_index(repos, staged_names, SRC_DIR)
+    write_index(HOME_FILE, SRC_DIR)
 
     subprocess.run(
         ["botdocs", str(SRC_DIR), "-o", str(OUTPUT_DIR), "-c", str(CONFIG_FILE)],

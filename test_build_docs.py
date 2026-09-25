@@ -52,18 +52,17 @@ class ListReposTests(unittest.TestCase):
 
 
 class WriteIndexTests(unittest.TestCase):
-    def test_links_only_staged_repos(self):
-        repos = [
-            {"name": "has-docs", "fork": False, "private": False},
-            {"name": "no-docs", "fork": False, "private": False},
-        ]
+    def test_uses_custom_home_page_as_index(self):
         with tempfile.TemporaryDirectory() as tmp:
-            staging_dir = Path(tmp)
-            write_index(repos, ["has-docs"], staging_dir)
+            tmp = Path(tmp)
+            home = tmp / "home.md"
+            home.write_text("# custom home\n", encoding="utf-8")
+            staging_dir = tmp / "site"
+            staging_dir.mkdir()
+            write_index(home, staging_dir)
             content = (staging_dir / "README.md").read_text(encoding="utf-8")
 
-        self.assertIn("[has-docs](./has-docs/README.md)", content)
-        self.assertNotIn("no-docs", content)
+        self.assertEqual(content, "# custom home\n")
 
 
 class StageDocsTests(unittest.TestCase):
