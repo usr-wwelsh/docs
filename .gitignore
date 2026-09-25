@@ -1,0 +1,5 @@
+.clones/
+site-src/
+output/
+__pycache__/
+scripts/

@@ -1,0 +1,241 @@
+/* usr-wwelsh docs — paper/ink editorial theme, matching wwel.sh portfolio.
+   Appended after bundle.css (see botdocs.config.json "customCss"), so
+   same-specificity selectors here win the cascade over the base "classic"
+   theme without !important. */
+
+:root {
+  --bg-primary: #fbfbf8;
+  --bg-secondary: #f5f5f0;
+  --bg-tertiary: #efefe8;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b66;
+  --text-faint: #9a9a94;
+  --border-color: #e3e3dd;
+  --border-strong: #cbcbc2;
+  --link-color: #1a1a1a;
+  --link-hover: #1a1a1a;
+  --code-bg: #f5f5f0;
+  --content-max-width: 46rem;
+}
+
+/* themes.css defines dark values on [data-theme='dark'] and on a
+   prefers-color-scheme media query, both at equal specificity to :root.
+   Redefine both spots here (same selectors, later in the cascade) so the
+   toggle and OS dark mode get this theme's dark palette instead of
+   classic's blue-tinted one. */
+[data-theme='dark'] {
+  --bg-primary: #181815;
+  --bg-secondary: #211f1c;
+  --bg-tertiary: #2b2925;
+  --text-primary: #eae7e0;
+  --text-secondary: #a8a49a;
+  --border-color: #34322c;
+  --border-strong: #47443c;
+  --link-color: #eae7e0;
+  --link-hover: #ffffff;
+  --code-bg: #211f1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg-primary: #181815;
+    --bg-secondary: #211f1c;
+    --bg-tertiary: #2b2925;
+    --text-primary: #eae7e0;
+    --text-secondary: #a8a49a;
+    --border-color: #34322c;
+    --border-strong: #47443c;
+    --link-color: #eae7e0;
+    --link-hover: #ffffff;
+    --code-bg: #211f1c;
+  }
+}
+
+body {
+  font-family: Charter, "Bitstream Charter", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+h2, h3, h4 {
+  font-weight: 600;
+}
+
+p {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+a {
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.15s, color 0.15s;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+  border-bottom-color: var(--text-primary);
+}
+
+/* Nav — underline instead of filled pills */
+.nav-list a {
+  border-radius: 0;
+}
+
+.nav-list a:hover {
+  border-bottom: none;
+}
+
+.nav-list a.active {
+  background: transparent;
+  color: var(--text-primary);
+  border-left: 2px solid var(--text-primary);
+  border-radius: 0;
+  padding-left: calc(0.75rem - 2px);
+}
+
+/* Code */
+code {
+  border: 1px solid var(--border-color);
+}
+
+/* Fenced code blocks are highlighted by Shiki with themes: {light, dark},
+   which inlines style="background-color:...;color:..." straight on <pre>
+   and each token <span> — that beats any plain CSS rule, including a
+   background/color override here. Shiki also stashes the dark-theme
+   colors as --shiki-dark / --shiki-dark-bg custom properties on those
+   same elements for exactly this situation: flip to them under dark mode
+   with !important, which is the one thing that *does* outrank an inline
+   style without !important. */
+[data-theme='dark'] .shiki,
+[data-theme='dark'] .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .shiki,
+  :root:not([data-theme='light']) .shiki span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 2px solid var(--border-strong);
+}
+
+/* Callouts — muted accents instead of saturated brand colors */
+.markdown-alert-note {
+  border-left-color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+.markdown-alert-note .markdown-alert-title { color: var(--text-primary); }
+
+.markdown-alert-tip {
+  border-left-color: #42734f;
+  background: var(--bg-secondary);
+}
+.markdown-alert-tip .markdown-alert-title { color: #42734f; }
+
+.markdown-alert-important {
+  border-left-color: #6c5a8c;
+  background: var(--bg-secondary);
+}
+.markdown-alert-important .markdown-alert-title { color: #6c5a8c; }
+
+.markdown-alert-warning {
+  border-left-color: #96772f;
+  background: var(--bg-secondary);
+}
+.markdown-alert-warning .markdown-alert-title { color: #96772f; }
+
+.markdown-alert-caution {
+  border-left-color: #a34c4c;
+  background: var(--bg-secondary);
+}
+.markdown-alert-caution .markdown-alert-title { color: #a34c4c; }
+
+/* themes.css sets its own rgba(...) alert backgrounds under both
+   [data-theme='dark'] and the prefers-color-scheme media query at higher
+   specificity than a plain .markdown-alert-* rule beats — !important is
+   the simplest way to win both without duplicating every selector. */
+[data-theme='dark'] .markdown-alert-note,
+[data-theme='dark'] .markdown-alert-tip,
+[data-theme='dark'] .markdown-alert-important,
+[data-theme='dark'] .markdown-alert-warning,
+[data-theme='dark'] .markdown-alert-caution,
+:root:not([data-theme='light']) .markdown-alert-note,
+:root:not([data-theme='light']) .markdown-alert-tip,
+:root:not([data-theme='light']) .markdown-alert-important,
+:root:not([data-theme='light']) .markdown-alert-warning,
+:root:not([data-theme='light']) .markdown-alert-caution {
+  background: var(--bg-secondary) !important;
+}
+
+/* Tables — bottom rules only, no boxed grid */
+th, td {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+/* Flatten card/button lift effects */
+.link-card {
+  transition: border-color 0.15s;
+}
+
+.link-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.nav-prev,
+.nav-next {
+  background: transparent;
+  border: 1px solid var(--border-color);
+}
+
+.nav-prev:hover,
+.nav-next:hover {
+  background: transparent;
+  border-color: var(--text-primary);
+}
+
+.chat-toggle {
+  box-shadow: 0 4px 12px rgba(26, 26, 26, 0.2);
+}
+
+/* omniMux's README has a raw <div style="...background: #0d1117;">
+   callout hardcoded to GitHub's dark palette, which clashes with this
+   site's light-mode theme. Inline styles beat external rules on any
+   property they set themselves, so background/color need !important here
+   to swap in the theme's own palette instead — without touching the
+   source repo. */
+div[style*="#0d1117"] {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
