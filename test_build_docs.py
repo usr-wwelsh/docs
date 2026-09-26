@@ -8,6 +8,7 @@ import build_docs
 from build_docs import (
     add_repo_link,
     filter_repos,
+    fingerprint,
     list_repos,
     local_repos,
     stage_docs,
@@ -49,6 +50,46 @@ class ListReposTests(unittest.TestCase):
             repos = list_repos()
         self.assertIn("users/usr-wwelsh/repos?type=owner&per_page=100", run.call_args.args[0])
         self.assertEqual(repos, [{"name": "a", "clone_url": "u", "fork": False, "private": False}])
+
+
+class FingerprintTests(unittest.TestCase):
+    def _tree(self, root: Path, files: dict[str, str]) -> Path:
+        for rel, content in files.items():
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text(content, encoding="utf-8")
+        return root
+
+    def test_same_inputs_give_same_fingerprint(self):
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+            files = {"repo/README.md": "x", "repo/docs/guide.md": "y"}
+            self.assertEqual(
+                fingerprint(self._tree(Path(a), files)),
+                fingerprint(self._tree(Path(b), files)),
+            )
+
+    def test_content_change_changes_fingerprint(self):
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+            self.assertNotEqual(
+                fingerprint(self._tree(Path(a), {"repo/README.md": "x"})),
+                fingerprint(self._tree(Path(b), {"repo/README.md": "z"})),
+            )
+
+    def test_rename_changes_fingerprint(self):
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+            self.assertNotEqual(
+                fingerprint(self._tree(Path(a), {"repo/a.md": "x"})),
+                fingerprint(self._tree(Path(b), {"repo/b.md": "x"})),
+            )
+
+    def test_extra_file_change_changes_fingerprint(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            site = self._tree(tmp / "site", {"repo/README.md": "x"})
+            css = tmp / "custom.css"
+            css.write_text("a{}", encoding="utf-8")
+            before = fingerprint(site, css)
+            css.write_text("b{}", encoding="utf-8")
+            self.assertNotEqual(before, fingerprint(site, css))
 
 
 class WriteIndexTests(unittest.TestCase):

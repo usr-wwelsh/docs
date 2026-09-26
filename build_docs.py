@@ -5,6 +5,7 @@ Clones nothing but the docs: git partial clone (--filter=blob:none) +
 sparse-checkout scoped to *.md, so no source trees are pulled to disk.
 """
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
@@ -16,6 +17,7 @@ HERE = Path(__file__).resolve().parent
 EXCLUDES_FILE = HERE / "repo-excludes.json"
 CONFIG_FILE = HERE / "botdocs.config.json"
 HOME_FILE = HERE / "home.md"
+CSS_FILE = HERE / "custom.css"
 CLONE_DIR = HERE / ".clones"
 SRC_DIR = HERE / "site-src"
 OUTPUT_DIR = HERE / "output"
@@ -135,6 +137,15 @@ def write_index(home: Path, staging_dir: Path) -> None:
     shutil.copy(home, staging_dir / "README.md")
 
 
+def fingerprint(site_dir: Path, *extra: Path) -> str:
+    h = hashlib.sha256()
+    entries = [(p.relative_to(site_dir).as_posix(), p) for p in sorted(site_dir.rglob("*")) if p.is_file()]
+    entries += [(f"extra/{p.name}", p) for p in extra]
+    for name, path in entries:
+        h.update(name.encode() + b"\0" + hashlib.sha256(path.read_bytes()).digest())
+    return h.hexdigest()
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -176,6 +187,9 @@ def main() -> int:
     subprocess.run(
         ["botdocs", str(SRC_DIR), "-o", str(OUTPUT_DIR), "-c", str(CONFIG_FILE)],
         check=True,
+    )
+    (OUTPUT_DIR / "fingerprint.txt").write_text(
+        fingerprint(SRC_DIR, CONFIG_FILE, CSS_FILE) + "\n", encoding="utf-8",
     )
     print(f"\nSite built at {OUTPUT_DIR}")
     return 0
