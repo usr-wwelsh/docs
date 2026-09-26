@@ -225,6 +225,23 @@ class StageDocsTests(unittest.TestCase):
             self.assertFalse((target / "skills").exists())
             self.assertFalse((target / "nested" / "skills").exists())
 
+    def test_excludes_test_docs_and_fixtures_directories(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            clone_dir = Path(tmp) / "clone"
+            staging_dir = Path(tmp) / "staging"
+            (clone_dir / "test-docs").mkdir(parents=True)
+            (clone_dir / "fixtures").mkdir(parents=True)
+            (clone_dir / "README.md").write_text("root")
+            (clone_dir / "test-docs" / "gfm-test.md").write_text("gfm")
+            (clone_dir / "fixtures" / "test-shelter-c.md").write_text("fixture")
+
+            stage_docs({"name": "myrepo"}, clone_dir, staging_dir)
+
+            target = staging_dir / "myrepo"
+            self.assertTrue((target / "README.md").exists())
+            self.assertFalse((target / "test-docs").exists())
+            self.assertFalse((target / "fixtures").exists())
+
 
 class AddRepoLinkTests(unittest.TestCase):
     def test_inserts_link_after_leading_h1(self):
