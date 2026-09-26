@@ -239,3 +239,10 @@ div[style*="#0d1117"] {
   background: var(--bg-secondary) !important;
   color: var(--text-primary) !important;
 }
+
+/* chat.css paints .ai-disclosure with background: var(--link-color) and
+   hardcoded white text. This theme's dark --link-color is near-white, so
+   flip the text to the page background to keep contrast in both modes. */
+.ai-disclosure {
+  color: var(--bg-primary);
+}
