@@ -146,6 +146,13 @@ def fingerprint(site_dir: Path, *extra: Path) -> str:
     return h.hexdigest()
 
 
+def missing_pages(site_dir: Path, output_dir: Path) -> list[str]:
+    expected = ["index.html"] + sorted(
+        p.relative_to(site_dir).with_suffix(".html").as_posix() for p in site_dir.rglob("*.md")
+    )
+    return [page for page in expected if not (output_dir / page).is_file()]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -190,6 +197,10 @@ def main() -> int:
         ["botdocs", str(SRC_DIR), "-o", str(OUTPUT_DIR), "-c", str(CONFIG_FILE)],
         check=True,
     )
+    missing = missing_pages(SRC_DIR, OUTPUT_DIR)
+    if missing:
+        print("Build incomplete, missing pages:", *missing, sep="\n  ", file=sys.stderr)
+        return 1
     (OUTPUT_DIR / "fingerprint.txt").write_text(
         fingerprint(SRC_DIR, CONFIG_FILE, CSS_FILE) + "\n", encoding="utf-8",
     )

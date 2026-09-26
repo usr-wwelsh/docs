@@ -11,6 +11,7 @@ from build_docs import (
     fingerprint,
     list_repos,
     local_repos,
+    missing_pages,
     stage_docs,
     update_clone,
     write_index,
@@ -90,6 +91,41 @@ class FingerprintTests(unittest.TestCase):
             before = fingerprint(site, css)
             css.write_text("b{}", encoding="utf-8")
             self.assertNotEqual(before, fingerprint(site, css))
+
+
+class MissingPagesTests(unittest.TestCase):
+    def _build(self, tmp: Path, md: list[str], html: list[str]) -> tuple[Path, Path]:
+        src, out = tmp / "src", tmp / "out"
+        for rel in md:
+            (src / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / rel).write_text("x", encoding="utf-8")
+        for rel in html:
+            (out / rel).parent.mkdir(parents=True, exist_ok=True)
+            (out / rel).write_text("x", encoding="utf-8")
+        return src, out
+
+    def test_complete_build_has_nothing_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, out = self._build(
+                Path(tmp),
+                ["README.md", "repo/README.md", "repo/docs/guide.md"],
+                ["index.html", "README.html", "repo/README.html", "repo/docs/guide.html"],
+            )
+            self.assertEqual(missing_pages(src, out), [])
+
+    def test_reports_page_botdocs_did_not_render(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, out = self._build(
+                Path(tmp),
+                ["README.md", "repo/README.md"],
+                ["index.html", "README.html"],
+            )
+            self.assertEqual(missing_pages(src, out), ["repo/README.html"])
+
+    def test_reports_missing_index(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, out = self._build(Path(tmp), ["README.md"], ["README.html"])
+            self.assertEqual(missing_pages(src, out), ["index.html"])
 
 
 class WriteIndexTests(unittest.TestCase):
