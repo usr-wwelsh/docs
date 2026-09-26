@@ -184,6 +184,8 @@ def main() -> int:
 
     write_index(HOME_FILE, SRC_DIR)
 
+    if OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
     subprocess.run(
         ["botdocs", str(SRC_DIR), "-o", str(OUTPUT_DIR), "-c", str(CONFIG_FILE)],
         check=True,
