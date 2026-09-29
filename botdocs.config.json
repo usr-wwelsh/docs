@@ -1,5 +1,6 @@
 {
   "title": "usr-wwelsh docs",
+  "baseUrl": "https://docs.wwel.sh/",
   "description": "<a href=\"https://github.com/usr-wwelsh\">GitHub</a> · <a href=\"https://wwel.sh\">Portfolio</a>",
   "theme": "classic",
   "customCss": "custom.css",
