@@ -1,6 +1,7 @@
 ---
 title: usr-wwelsh docs
 description: Documentation for every public usr-wwelsh repo, in one searchable place
+search: false
 ---
 
 # usr-wwelsh docs
