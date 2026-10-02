@@ -14,13 +14,13 @@ Search is semantic, so you can describe what you want instead of guessing a repo
 
 ## Try searching for
 
-- `run an LLM on my own machine without a GPU`
+- `run Hugging Face models locally on CPU`
 - `download music from YouTube and stream it on my phone`
 - `status badge showing my server's CPU and RAM`
 - `build a Doom-style game in the browser without code`
-- `does being rude to an AI make it worse at reasoning`
+- `does hostile feedback make an LLM worse at reasoning`
 - `summaries of new arXiv papers without an API key`
-- `turn my commit history into a blog`
+- `summarize my GitHub commits with an LLM`
 - `run several AI agents in parallel on a kanban board`
 
 ## What's here
