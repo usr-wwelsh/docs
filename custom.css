@@ -334,3 +334,28 @@ div[style*="#0d1117"] {
     margin-top: 0;
   }
 }
+
+/* Stretched link: the site title is a plain <h1> with no anchor, so an
+   empty .home-link in the description gets an ::after that covers the
+   title. The description's own links sit above it. */
+.sidebar-header {
+  position: relative;
+}
+
+.home-link {
+  border-bottom: none;
+}
+
+.home-link::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5rem;
+}
+
+.site-description a:not(.home-link) {
+  position: relative;
+  z-index: 1;
+}
