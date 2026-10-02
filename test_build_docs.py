@@ -242,6 +242,20 @@ class StageDocsTests(unittest.TestCase):
             self.assertFalse((target / "test-docs").exists())
             self.assertFalse((target / "fixtures").exists())
 
+    def test_excludes_eval_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            clone_dir = Path(tmp) / "clone"
+            staging_dir = Path(tmp) / "staging"
+            (clone_dir / "eval" / "corpus" / "x").mkdir(parents=True)
+            (clone_dir / "README.md").write_text("root")
+            (clone_dir / "eval" / "corpus" / "x" / "README.md").write_text("corpus")
+
+            stage_docs({"name": "myrepo"}, clone_dir, staging_dir)
+
+            target = staging_dir / "myrepo"
+            self.assertTrue((target / "README.md").exists())
+            self.assertFalse((target / "eval").exists())
+
 
 class AddRepoLinkTests(unittest.TestCase):
     def test_inserts_link_after_leading_h1(self):

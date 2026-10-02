@@ -99,7 +99,7 @@ def local_repos(excludes: set[str]) -> list[dict]:
     ]
 
 
-EXCLUDED_DIRS = {".git", "skills", "test-docs", "fixtures"}
+EXCLUDED_DIRS = {".git", "skills", "test-docs", "fixtures", "eval"}
 EXCLUDED_FILENAMES = {"CLAUDE.md", "PLEASE_READ.md", "AGENTS.md"}
 
 
