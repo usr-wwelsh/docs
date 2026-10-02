@@ -246,3 +246,91 @@ div[style*="#0d1117"] {
 .ai-disclosure {
   color: var(--bg-primary);
 }
+
+/* Sidebar collapsed by default. botdocs has no custom-JS hook, so the
+   "button" is a pseudo-element and expansion is :hover / :focus-within
+   (a tap on touch devices, Tab on keyboard). The links stay in the tab
+   order while collapsed so focus-within can open the list. */
+.sidebar-nav::before {
+  content: "Projects \25BE";
+  display: block;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.sidebar-nav:hover::before,
+.sidebar-nav:focus-within::before {
+  content: "Projects \25B4";
+}
+
+.sidebar-nav .nav-list {
+  max-height: 0;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.sidebar-nav:hover .nav-list,
+.sidebar-nav:focus-within .nav-list {
+  max-height: none;
+  margin-top: 0.75rem;
+}
+
+@media (min-width: 769px) {
+  :root {
+    --sidebar-width: 3.25rem;
+  }
+
+  .sidebar {
+    padding: 0;
+    overflow: hidden;
+    z-index: 10;
+    transition: width 0.15s;
+  }
+
+  .sidebar::before {
+    content: "\2630";
+    display: block;
+    padding: 1rem 0;
+    text-align: center;
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+  }
+
+  .sidebar > * {
+    opacity: 0;
+    pointer-events: none;
+    min-width: 216px;
+  }
+
+  .sidebar:hover,
+  .sidebar:focus-within {
+    width: 280px;
+    padding: 0 2rem 2rem;
+    overflow-y: auto;
+    box-shadow: 4px 0 16px rgba(26, 26, 26, 0.08);
+  }
+
+  .sidebar:hover::before,
+  .sidebar:focus-within::before {
+    text-align: left;
+    padding: 1rem 0;
+  }
+
+  .sidebar:hover > *,
+  .sidebar:focus-within > * {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-nav::before {
+    display: none;
+  }
+
+  .sidebar-nav .nav-list {
+    max-height: none;
+    margin-top: 0;
+  }
+}
