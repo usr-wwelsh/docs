@@ -359,3 +359,88 @@ div[style*="#0d1117"] {
   position: relative;
   z-index: 1;
 }
+
+/* chat.css fills these with --link-color and hardcoded white text; this
+   theme's dark --link-color is near-white, so use the dark surfaces. */
+[data-theme='dark'] .chat-toggle,
+[data-theme='dark'] .chat-header,
+[data-theme='dark'] .chat-header h3,
+[data-theme='dark'] .chat-info,
+[data-theme='dark'] .chat-clear,
+[data-theme='dark'] .chat-close,
+[data-theme='dark'] .chat-disclosure-close,
+[data-theme='dark'] .chat-message.user .message-content,
+[data-theme='dark'] .chat-send,
+[data-theme='dark'] .chat-consent-retry {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .chat-toggle,
+  :root:not([data-theme='light']) .chat-header,
+  :root:not([data-theme='light']) .chat-header h3,
+  :root:not([data-theme='light']) .chat-info,
+  :root:not([data-theme='light']) .chat-clear,
+  :root:not([data-theme='light']) .chat-close,
+  :root:not([data-theme='light']) .chat-disclosure-close,
+  :root:not([data-theme='light']) .chat-message.user .message-content,
+  :root:not([data-theme='light']) .chat-send,
+  :root:not([data-theme='light']) .chat-consent-retry {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+}
+
+[data-theme='dark'] .chat-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme='dark'] .chat-toggle,
+[data-theme='dark'] .chat-message.user .message-content {
+  border: 1px solid var(--border-strong);
+}
+
+[data-theme='dark'] .chat-container {
+  border-color: var(--border-strong);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .chat-header {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  :root:not([data-theme='light']) .chat-toggle,
+  :root:not([data-theme='light']) .chat-message.user .message-content {
+    border: 1px solid var(--border-strong);
+  }
+
+  :root:not([data-theme='light']) .chat-container {
+    border-color: var(--border-strong);
+  }
+}
+
+[data-theme='dark'] .chat-container {
+  background: var(--bg-primary);
+  border-color: var(--border-strong);
+}
+
+[data-theme='dark'] .chat-messages {
+  background: var(--bg-primary);
+}
+
+[data-theme='dark'] .chat-message.assistant .message-content {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .chat-input-container {
+  background: var(--bg-secondary);
+  border-top-color: var(--border-color);
+}
+
+[data-theme='dark'] .chat-input {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
