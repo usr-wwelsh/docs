@@ -6,7 +6,9 @@ sparse-checkout scoped to *.md, so no source trees are pulled to disk.
 """
 import argparse
 import hashlib
+import html
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -18,9 +20,13 @@ EXCLUDES_FILE = HERE / "repo-excludes.json"
 CONFIG_FILE = HERE / "botdocs.config.json"
 HOME_FILE = HERE / "home.md"
 CSS_FILE = HERE / "custom.css"
+STATIC_DIR = HERE / "static"
 CLONE_DIR = HERE / ".clones"
 SRC_DIR = HERE / "site-src"
 OUTPUT_DIR = HERE / "output"
+BASE_URL = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))["baseUrl"]
+DESCRIPTION_MAX = 160
+MIN_PROSE = 40
 
 
 def load_excludes() -> set[str]:
@@ -137,6 +143,64 @@ def write_index(home: Path, staging_dir: Path) -> None:
     shutil.copy(home, staging_dir / "README.md")
 
 
+def extract_description(md: str) -> str:
+    front = re.match(r"---\n(.*?)\n---\n", md, re.DOTALL)
+    if front:
+        field = re.search(r"^description:\s*(.+)$", front.group(1), re.MULTILINE)
+        if field:
+            return field.group(1).strip()
+        md = md[front.end():]
+    for block in re.split(r"\n\s*\n", md):
+        block = block.strip()
+        if not block or block[0] in "#<|>-*!" or block.startswith(("```", "[![")) or re.match(r"\d+\.", block):
+            continue
+        text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", block)
+        text = re.sub(r"[*_`]", "", text)
+        text = " ".join(text.split())
+        if len(text) < MIN_PROSE:
+            continue
+        if len(text) > DESCRIPTION_MAX:
+            text = text[: DESCRIPTION_MAX - 1].rsplit(" ", 1)[0].rstrip(" ,;:.-") + "\u2026"
+        return text
+    return ""
+
+
+def dedupe_title(match: re.Match) -> str:
+    head, title, tail = match.groups()
+    half, sep, rest = title.partition(" - ")
+    return f"{head}{half if sep and rest == half else title}{tail}"
+
+
+def enhance_html(page: str, description: str, base_url: str) -> str:
+    if description:
+        content = html.escape(description, quote=True)
+        page = re.sub(r'(<meta name="description" content=")[^"]*', lambda m: m.group(1) + content, page)
+        page = re.sub(r'(<meta property="og:description" content=")[^"]*', lambda m: m.group(1) + content, page)
+    page = re.sub(r"(<title>)([^<]*)(</title>)", dedupe_title, page)
+    page = re.sub(r'(<meta property="og:title" content=")([^"]*)(")', dedupe_title, page)
+    page = page.replace('<meta name="twitter:card" content="summary">', '<meta name="twitter:card" content="summary_large_image">')
+    root = re.search(r'<meta name="botdocs-root" content="([^"]*)"', page)
+    icon = (root.group(1) if root else "./") + "favicon.svg"
+    image = f"{base_url}og.png"
+    extra = (
+        f'  <meta property="og:image" content="{image}">\n'
+        f'  <meta name="twitter:image" content="{image}">\n'
+        f'  <link rel="icon" href="{icon}" type="image/svg+xml">\n'
+    )
+    return page.replace("</head>", extra + "</head>", 1)
+
+
+def enhance_site(site_dir: Path, output_dir: Path, base_url: str, static_dir: Path = STATIC_DIR) -> None:
+    for page in sorted(output_dir.rglob("*.html")):
+        rel = page.relative_to(output_dir)
+        source = site_dir / ("README.md" if rel.as_posix() == "index.html" else rel.with_suffix(".md"))
+        description = extract_description(source.read_text(encoding="utf-8")) if source.is_file() else ""
+        page.write_text(enhance_html(page.read_text(encoding="utf-8"), description, base_url), encoding="utf-8")
+    if static_dir.is_dir():
+        for asset in static_dir.iterdir():
+            shutil.copy(asset, output_dir / asset.name)
+
+
 def fingerprint(site_dir: Path, *extra: Path) -> str:
     h = hashlib.sha256()
     entries = [(p.relative_to(site_dir).as_posix(), p) for p in sorted(site_dir.rglob("*")) if p.is_file()]
@@ -201,8 +265,9 @@ def main() -> int:
     if missing:
         print("Build incomplete, missing pages:", *missing, sep="\n  ", file=sys.stderr)
         return 1
+    enhance_site(SRC_DIR, OUTPUT_DIR, BASE_URL)
     (OUTPUT_DIR / "fingerprint.txt").write_text(
-        fingerprint(SRC_DIR, CONFIG_FILE, CSS_FILE) + "\n", encoding="utf-8",
+        fingerprint(SRC_DIR, CONFIG_FILE, CSS_FILE, *sorted(STATIC_DIR.glob("*")), Path(__file__)) + "\n", encoding="utf-8",
     )
     print(f"\nSite built at {OUTPUT_DIR}")
     return 0

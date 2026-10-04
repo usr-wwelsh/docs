@@ -7,6 +7,9 @@ from unittest.mock import patch
 import build_docs
 from build_docs import (
     add_repo_link,
+    enhance_html,
+    enhance_site,
+    extract_description,
     filter_repos,
     fingerprint,
     list_repos,
@@ -364,6 +367,126 @@ class LocalReposTests(unittest.TestCase):
             missing = Path(tmp) / "not-there"
             with patch.object(build_docs, "CLONE_DIR", missing):
                 self.assertEqual(local_repos(set()), [])
+
+
+HEAD = """<head>
+  <meta name="description" content="GitHub · Portfolio">
+  <title>turbolab - usr-wwelsh docs</title>
+  <meta property="og:title" content="turbolab - usr-wwelsh docs">
+  <meta property="og:description" content="GitHub · Portfolio">
+  <meta name="twitter:card" content="summary">
+  <meta name="botdocs-root" content="../">
+</head>"""
+BASE = "https://docs.wwel.sh/"
+
+
+class ExtractDescriptionTests(unittest.TestCase):
+    def test_skips_heading_badges_and_html_to_first_prose(self):
+        md = (
+            "# tool\n\n[View on GitHub](https://x)\n\n"
+            "[![b](https://img/b.svg)](https://x)\n\n"
+            "<table><tr><td>x</td></tr></table>\n\n"
+            "A self-hosted model server that runs GGUF models on your own hardware.\n\n## Install\n"
+        )
+        self.assertEqual(
+            extract_description(md),
+            "A self-hosted model server that runs GGUF models on your own hardware.",
+        )
+
+    def test_strips_markdown_links_and_emphasis(self):
+        md = "# t\n\nRun **fast** [local models](https://x) with `zero` config and no cloud account needed.\n"
+        self.assertEqual(
+            extract_description(md),
+            "Run fast local models with zero config and no cloud account needed.",
+        )
+
+    def test_joins_wrapped_lines(self):
+        md = "# t\n\nA tool that does one thing\nand does it well, offline, forever.\n"
+        self.assertEqual(extract_description(md), "A tool that does one thing and does it well, offline, forever.")
+
+    def test_truncates_long_text_at_word_boundary_with_ellipsis(self):
+        md = "# t\n\n" + "word " * 100
+        result = extract_description(md)
+        self.assertLessEqual(len(result), 160)
+        self.assertTrue(result.endswith("…"))
+        self.assertNotIn("wor…", result)
+
+    def test_prefers_front_matter_description(self):
+        md = "---\ntitle: x\ndescription: From front matter\n---\n\n# x\n\nBody paragraph that is long enough to be a description.\n"
+        self.assertEqual(extract_description(md), "From front matter")
+
+    def test_empty_when_no_prose(self):
+        self.assertEqual(extract_description("# t\n\n- a\n- b\n"), "")
+
+
+class EnhanceHtmlTests(unittest.TestCase):
+    def _run(self, head=HEAD, desc="Real description"):
+        return enhance_html(head, desc, BASE)
+
+    def test_replaces_both_description_tags(self):
+        out = self._run()
+        self.assertIn('<meta name="description" content="Real description">', out)
+        self.assertIn('<meta property="og:description" content="Real description">', out)
+        self.assertNotIn("GitHub · Portfolio", out)
+
+    def test_escapes_description(self):
+        out = self._run(desc='a "quoted" <b> & more')
+        self.assertIn("a &quot;quoted&quot; &lt;b&gt; &amp; more", out)
+
+    def test_keeps_existing_description_when_none_extracted(self):
+        self.assertIn('content="GitHub · Portfolio"', self._run(desc=""))
+
+    def test_adds_absolute_og_and_twitter_image(self):
+        out = self._run()
+        self.assertIn('<meta property="og:image" content="https://docs.wwel.sh/og.png">', out)
+        self.assertIn('<meta name="twitter:image" content="https://docs.wwel.sh/og.png">', out)
+
+    def test_uses_large_twitter_card(self):
+        out = self._run()
+        self.assertIn('content="summary_large_image"', out)
+        self.assertNotIn('content="summary"', out)
+
+    def test_adds_favicon_relative_to_root(self):
+        self.assertIn('<link rel="icon" href="../favicon.svg" type="image/svg+xml">', self._run())
+
+    def test_collapses_duplicated_title(self):
+        head = HEAD.replace("turbolab - usr-wwelsh docs", "usr-wwelsh docs - usr-wwelsh docs")
+        out = self._run(head)
+        self.assertIn("<title>usr-wwelsh docs</title>", out)
+        self.assertIn('og:title" content="usr-wwelsh docs"', out)
+
+    def test_leaves_distinct_title(self):
+        self.assertIn("<title>turbolab - usr-wwelsh docs</title>", self._run())
+
+
+class EnhanceSiteTests(unittest.TestCase):
+    def test_enhances_each_page_from_its_source_and_index_from_home(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src, out = tmp / "src", tmp / "out"
+            (src / "repo").mkdir(parents=True)
+            (out / "repo").mkdir(parents=True)
+            (src / "README.md").write_text("---\ndescription: Home desc\n---\n# Home\n", encoding="utf-8")
+            (src / "repo" / "README.md").write_text(
+                "# repo\n\nA long enough paragraph describing what this repo actually does for you.\n", encoding="utf-8",
+            )
+            for rel in ("index.html", "README.html", "repo/README.html"):
+                (out / rel).write_text(HEAD, encoding="utf-8")
+            enhance_site(src, out, BASE)
+            self.assertIn('content="Home desc"', (out / "index.html").read_text(encoding="utf-8"))
+            self.assertIn('content="Home desc"', (out / "README.html").read_text(encoding="utf-8"))
+            self.assertIn("what this repo actually does", (out / "repo" / "README.html").read_text(encoding="utf-8"))
+
+    def test_copies_static_assets_into_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src, out, static = tmp / "src", tmp / "out", tmp / "static"
+            src.mkdir(); out.mkdir(); static.mkdir()
+            (static / "og.png").write_bytes(b"png")
+            (src / "README.md").write_text("# h\n", encoding="utf-8")
+            (out / "index.html").write_text(HEAD, encoding="utf-8")
+            enhance_site(src, out, BASE, static)
+            self.assertEqual((out / "og.png").read_bytes(), b"png")
 
 
 if __name__ == "__main__":
