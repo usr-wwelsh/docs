@@ -8,6 +8,7 @@ import argparse
 import hashlib
 import html
 import json
+import posixpath
 import re
 import shutil
 import subprocess
@@ -117,6 +118,28 @@ def add_repo_link(content: str, url: str) -> str:
     return f"{link}\n\n{content}"
 
 
+IMG_HTML = re.compile(r'(<img\b[^>]*?\bsrc=")([^"]+)(")')
+IMG_MD = re.compile(r"(!\[[^\]]*\]\()([^)\s]+)")
+ABSOLUTE = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|//|#)", re.IGNORECASE)
+
+
+def absolutize_images(content: str, repo_name: str, md_path: str) -> str:
+    base = f"https://raw.githubusercontent.com/{USERNAME}/{repo_name}/HEAD"
+    md_dir = posixpath.dirname(md_path)
+
+    def resolve(match: re.Match) -> str:
+        path = match.group(2)
+        if ABSOLUTE.match(path):
+            return match.group(0)
+        joined = path[1:] if path.startswith("/") else posixpath.join(md_dir, path)
+        resolved = posixpath.normpath(joined)
+        if resolved.startswith(".."):
+            return match.group(0)
+        return f"{match.group(1)}{base}/{resolved}{match.group(3) if match.lastindex >= 3 else ''}"
+
+    return IMG_MD.sub(resolve, IMG_HTML.sub(resolve, content))
+
+
 def stage_docs(repo: dict, clone_dir: Path, staging_dir: Path) -> bool:
     md_files = [
         p for p in clone_dir.rglob("*.md")
@@ -130,7 +153,11 @@ def stage_docs(repo: dict, clone_dir: Path, staging_dir: Path) -> bool:
     for src in md_files:
         dest = target / src.relative_to(clone_dir)
         dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(src, dest)
+        rel = src.relative_to(clone_dir).as_posix()
+        dest.write_text(
+            absolutize_images(src.read_text(encoding="utf-8"), repo["name"], rel),
+            encoding="utf-8",
+        )
 
     readme = target / "README.md"
     if readme.exists():

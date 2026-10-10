@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import build_docs
 from build_docs import (
+    absolutize_images,
     add_repo_link,
     enhance_html,
     enhance_site,
@@ -281,6 +282,53 @@ class AddRepoLinkTests(unittest.TestCase):
             "[View on GitHub](https://github.com/usr-wwelsh/myrepo)\n\n"
             "Some docs without a heading.\n",
         )
+
+
+RAW = "https://raw.githubusercontent.com/usr-wwelsh/myrepo/HEAD"
+
+
+class AbsolutizeImagesTests(unittest.TestCase):
+    def test_html_img_src_becomes_raw_url(self):
+        result = absolutize_images('<img src="demo1.webp" width="400"/>', "myrepo", "README.md")
+        self.assertEqual(result, f'<img src="{RAW}/demo1.webp" width="400"/>')
+
+    def test_markdown_image_becomes_raw_url(self):
+        result = absolutize_images("![shot](img/a.png)", "myrepo", "README.md")
+        self.assertEqual(result, f"![shot]({RAW}/img/a.png)")
+
+    def test_path_resolves_against_md_file_directory(self):
+        result = absolutize_images("![x](../a.png) ![y](./b.png)", "myrepo", "docs/guide/page.md")
+        self.assertEqual(result, f"![x]({RAW}/docs/a.png) ![y]({RAW}/docs/guide/b.png)")
+
+    def test_leading_slash_resolves_against_repo_root(self):
+        result = absolutize_images("![x](/a.png)", "myrepo", "docs/page.md")
+        self.assertEqual(result, f"![x]({RAW}/a.png)")
+
+    def test_absolute_and_data_urls_are_untouched(self):
+        content = '![a](https://x.io/a.svg) <img src="//x.io/b.png"> ![c](data:image/png;base64,AAA)'
+        self.assertEqual(absolutize_images(content, "myrepo", "README.md"), content)
+
+    def test_title_after_path_is_preserved(self):
+        result = absolutize_images('![x](a.png "tip")', "myrepo", "README.md")
+        self.assertEqual(result, f'![x]({RAW}/a.png "tip")')
+
+    def test_path_escaping_repo_root_is_untouched(self):
+        content = "![x](../../a.png)"
+        self.assertEqual(absolutize_images(content, "myrepo", "README.md"), content)
+
+
+class StageDocsImageTests(unittest.TestCase):
+    def test_staged_markdown_has_absolute_images(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            clone_dir = Path(tmp) / "clone"
+            staging_dir = Path(tmp) / "staging"
+            (clone_dir / "docs").mkdir(parents=True)
+            (clone_dir / "docs" / "a.md").write_text("![x](p.png)")
+
+            stage_docs({"name": "myrepo"}, clone_dir, staging_dir)
+
+            content = (staging_dir / "myrepo" / "docs" / "a.md").read_text()
+            self.assertEqual(content, f"![x]({RAW}/docs/p.png)")
 
 
 class StageDocsRepoLinkTests(unittest.TestCase):
