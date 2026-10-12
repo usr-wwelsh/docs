@@ -444,3 +444,7 @@ div[style*="#0d1117"] {
   border-color: var(--border-color);
   color: var(--text-primary);
 }
+
+.quick-links {
+  display: none;
+}
