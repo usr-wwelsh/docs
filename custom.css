@@ -448,3 +448,42 @@ div[style*="#0d1117"] {
 .quick-links {
   display: none;
 }
+
+#try-searching-for ~ ul:first-of-type {
+  list-style: none;
+  padding: 0;
+}
+
+#try-searching-for ~ ul:first-of-type li {
+  display: flex;
+  align-items: stretch;
+  margin: 0 0 0.5rem;
+}
+
+#try-searching-for ~ ul:first-of-type li > code {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px 0 0 4px;
+  background: var(--code-bg);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.copy-badge {
+  padding: 0 0.7rem;
+  border: 1px solid var(--border-color);
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.copy-badge:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}

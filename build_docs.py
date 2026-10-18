@@ -207,12 +207,14 @@ def enhance_html(page: str, description: str, base_url: str) -> str:
     page = re.sub(r'(<meta property="og:title" content=")([^"]*)(")', dedupe_title, page)
     page = page.replace('<meta name="twitter:card" content="summary">', '<meta name="twitter:card" content="summary_large_image">')
     root = re.search(r'<meta name="botdocs-root" content="([^"]*)"', page)
-    icon = (root.group(1) if root else "./") + "favicon.svg"
+    root_path = root.group(1) if root else "./"
+    icon = root_path + "favicon.svg"
     image = f"{base_url}og.png"
     extra = (
         f'  <meta property="og:image" content="{image}">\n'
         f'  <meta name="twitter:image" content="{image}">\n'
         f'  <link rel="icon" href="{icon}" type="image/svg+xml">\n'
+        f'  <script defer src="{root_path}copy.js"></script>\n'
     )
     return page.replace("</head>", extra + "</head>", 1)
 

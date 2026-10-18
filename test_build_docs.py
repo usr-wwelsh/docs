@@ -497,6 +497,9 @@ class EnhanceHtmlTests(unittest.TestCase):
     def test_adds_favicon_relative_to_root(self):
         self.assertIn('<link rel="icon" href="../favicon.svg" type="image/svg+xml">', self._run())
 
+    def test_loads_copy_script_relative_to_root(self):
+        self.assertIn('<script defer src="../copy.js"></script>', self._run())
+
     def test_collapses_duplicated_title(self):
         head = HEAD.replace("turbolab - usr-wwelsh docs", "usr-wwelsh docs - usr-wwelsh docs")
         out = self._run(head)
