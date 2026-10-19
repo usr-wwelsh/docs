@@ -487,3 +487,21 @@ div[style*="#0d1117"] {
   color: var(--text-primary);
   border-color: var(--border-strong);
 }
+
+[data-theme='dark'] .mermaid .section-root text,
+[data-theme='dark'] .mermaid .section-root tspan,
+[data-theme='dark'] .mermaid .section-root span,
+[data-theme='dark'] .mermaid .section-root p {
+  fill: #000 !important;
+  color: #000 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .mermaid .section-root text,
+  :root:not([data-theme='light']) .mermaid .section-root tspan,
+  :root:not([data-theme='light']) .mermaid .section-root span,
+  :root:not([data-theme='light']) .mermaid .section-root p {
+    fill: #000 !important;
+    color: #000 !important;
+  }
+}
