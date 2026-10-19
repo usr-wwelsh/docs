@@ -488,20 +488,14 @@ div[style*="#0d1117"] {
   border-color: var(--border-strong);
 }
 
-[data-theme='dark'] .mermaid .section-root text,
-[data-theme='dark'] .mermaid .section-root tspan,
-[data-theme='dark'] .mermaid .section-root span,
-[data-theme='dark'] .mermaid .section-root p {
-  fill: #000 !important;
-  color: #000 !important;
+[data-theme='dark'] .mermaid text[fill='#fff'],
+[data-theme='dark'] .mermaid-modal text[fill='#fff'] {
+  fill: #000;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .mermaid .section-root text,
-  :root:not([data-theme='light']) .mermaid .section-root tspan,
-  :root:not([data-theme='light']) .mermaid .section-root span,
-  :root:not([data-theme='light']) .mermaid .section-root p {
-    fill: #000 !important;
-    color: #000 !important;
+  :root:not([data-theme='light']) .mermaid text[fill='#fff'],
+  :root:not([data-theme='light']) .mermaid-modal text[fill='#fff'] {
+    fill: #000;
   }
 }
