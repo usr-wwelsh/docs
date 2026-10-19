@@ -12,6 +12,32 @@ This site gathers the docs for every public [usr-wwelsh](https://github.com/usr-
 
 Search is semantic, so you can describe what you want instead of guessing a repo name.
 
+```mermaid
+mindmap
+  root((usr-wwelsh))
+    🏠 Self-hosting
+      turbolab · AI model server
+      omniMux · music streamer
+      socialChat · social network
+      vitalSVG · status badges
+    🤖 AI & agents
+      fanoutd · agent orchestrator
+      Research Digest · arXiv summaries
+      Emotional Contamination · LLM testing
+    📚 Docs tooling
+      botdocs · builds this site
+      Dependadocs · flags stale docs
+    🎮 Games & creative
+      Blopple · no-code Doom editor
+      Path of Python · post-apocalyptic ARPG
+      Git Gallery · 3D GitHub museum
+      Karaoke Maker · AI karaoke
+    🛠️ Developer utilities
+      git-digest · AI commit journal
+      Go Course · interactive tutorial
+      Mood Detector · audio analysis
+```
+
 ## Try searching for
 
 - `run Hugging Face models locally on CPU`
