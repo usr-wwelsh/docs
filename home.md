@@ -15,27 +15,30 @@ Search is semantic, so you can describe what you want instead of guessing a repo
 ```mermaid
 mindmap
   root((usr-wwelsh))
-    🏠 Self-hosting
-      turbolab · AI model server
-      omniMux · music streamer
-      socialChat · social network
-      vitalSVG · status badges
     🤖 AI & agents
+      turbolab · AI model server
       fanoutd · agent orchestrator
       Research Digest · arXiv summaries
       Emotional Contamination · LLM testing
-    📚 Docs tooling
+      jobSeeker · code matched to job listings
+    🛠️ Tools & apps
       botdocs · builds this site
       Dependadocs · flags stale docs
+      git-digest · AI commit journal
+      init-launcher · terminal-style Android launcher
+      zweek-lisp · archived Lisp-to-C++ experiment
     🎮 Games & creative
       Blopple · no-code Doom editor
       Path of Python · post-apocalyptic ARPG
       Git Gallery · 3D GitHub museum
       Karaoke Maker · AI karaoke
-    🛠️ Developer utilities
-      git-digest · AI commit journal
-      Go Course · interactive tutorial
       Mood Detector · audio analysis
+      cde-wallpaper · CDE wallpaper picker
+    🏠 Self-hosting
+      omniMux · music streamer
+      socialChat · social network
+      vitalSVG · status badges
+      Dominion Tracker · game night league tracker
 ```
 
 ## Try searching for
