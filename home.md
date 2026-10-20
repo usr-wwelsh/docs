@@ -54,12 +54,10 @@ mindmap
 
 ## What's here
 
-- **Self-hosting**: run your own AI model server, music streamer, social network and status badges with [turbolab](./turbolab/README.html), [omniMux](./omniMux/README.html), [socialChat](./socialChat/README.html) and [vitalSVG](./vitalSVG/README.html)
-- **AI & agents**: orchestrate agents, summarize research papers and test how LLMs behave with [fanoutd](./fanoutd/README.html), [Research-Digest](./Research-Digest/README.html) and [emotional-contamination](./emotional-contamination/README.html)
-- **Docs tooling**: [botdocs](./botdocs/README.html) builds this site, and [Dependadocs](./Dependadocs/README.html) flags docs a PR made stale
-- **Games & toys**: a no-code Doom-style editor, an ARPG and a 3D museum of GitHub in [Blopple](./Blopple/README.html), [path-of-python](./path-of-python/README.html) and [git-gallery](./git-gallery/README.html)
-
-The sidebar has everything else.
+- **AI & agents**: run your own AI model server, orchestrate agents, summarize research papers, test how LLMs behave and match your code to job listings with [turbolab](./turbolab/README.html), [fanoutd](./fanoutd/README.html), [Research-Digest](./Research-Digest/README.html), [emotional-contamination](./emotional-contamination/README.html) and [jobSeeker](./jobSeeker/README.html)
+- **Tools & apps**: [botdocs](./botdocs/README.html) builds this site, [Dependadocs](./Dependadocs/README.html) flags docs a PR made stale, [git-digest](./git-digest/README.html) journals your commits, [init-launcher](./init-launcher/README.html) is a terminal-style Android launcher and [zweek-lisp](./zweek-lisp/readme.html) is an archived Lisp-to-C++ experiment
+- **Games & creative**: a no-code Doom-style editor, an ARPG, a 3D museum of GitHub, AI karaoke, audio analysis and a CDE wallpaper picker in [Blopple](./Blopple/README.html), [path-of-python](./path-of-python/README.html), [git-gallery](./git-gallery/README.html), [karaoke-maker](./karaoke-maker/README.html), [Mood-Detector](./Mood-Detector/README.html) and [cde-wallpaper](./cde-wallpaper/README.html)
+- **Self-hosting**: run your own music streamer, social network, status badges and game night league tracker with [omniMux](./omniMux/README.html), [socialChat](./socialChat/README.html), [vitalSVG](./vitalSVG/README.html) and [dominion-tracker](./dominion-tracker/README.html)
 
 ## Elsewhere
 
