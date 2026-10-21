@@ -4,8 +4,6 @@ description: Documentation for every public usr-wwelsh repo, in one searchable p
 search: false
 ---
 
-# usr-wwelsh docs
-
 Hi, I'm William Welsh. I build free, open, offline-first tools, mostly single binaries you can run on your own hardware with no accounts, API keys or cloud. Everything is MIT.
 
 This site gathers the docs for every public [usr-wwelsh](https://github.com/usr-wwelsh) repo. Each project's README and `docs/` folder get pulled in nightly, so it stays in sync with GitHub.
